@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "265054184205",
+    "firebase_url": "https://emersave-2d464.firebaseio.com",
+    "project_id": "emersave-2d464",
+    "storage_bucket": "emersave-2d464.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:265054184205:android:4ae40eab2421de2f",
+        "android_client_info": {
+          "package_name": "com.vishnu.emersave"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "265054184205-8nm1giaaml7tro65l59kldqdlbp2hto7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vishnu.emersave",
+            "certificate_hash": "53404687c8283822c257e1956f6b9eda4fa8efa4"
+          }
+        },
+        {
+          "client_id": "265054184205-sieugrhi4rd7rtgl0jndi58640popmko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTZxH7FMcGMzK51dIWSWw8UHId9HL2ufI"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "265054184205-sieugrhi4rd7rtgl0jndi58640popmko.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
