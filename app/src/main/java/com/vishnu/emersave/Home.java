@@ -30,6 +30,7 @@ import android.provider.Settings;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.util.Base64;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -55,12 +56,16 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.lang.reflect.Method;
+import java.security.MessageDigest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 
 import com.google.android.gms.actions.SearchIntents;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 import static com.vishnu.emersave.PostingPage.namef;
 
@@ -103,10 +108,12 @@ public class Home extends AppCompatActivity {
     String safeSpeak = "Make sure you let others know you're safe";
     LocationManager locationManager;
     Location Location;
-
+    String EncDecpassword = "TestPassword";
+    String AES = "AES";
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
         mAuth = FirebaseAuth.getInstance();
@@ -119,6 +126,7 @@ public class Home extends AppCompatActivity {
                 }
             }
         };
+
         t1 = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -234,12 +242,41 @@ public class Home extends AppCompatActivity {
         }
         if(v.getId()==R.id.help_request)
         {
-            DatabaseReference  distress = database.getReference("messages").child(Register.group).child(getId());
 
-            distress.child("message").setValue("I need help");
-            distress.child("latitude").setValue(MyService.latitude);
-            distress.child("longitude").setValue(MyService.longitude);
-           distress.child("Name").setValue(SignIn.account.getDisplayName());
+            String senderMessage = "";
+            DatabaseReference  distress = database.getReference("messages").child(Register.group).child(getId());
+            String helpMessage = "I need help";
+            try {
+                senderMessage = encrypt(helpMessage,EncDecpassword);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            distress.child("message").setValue(senderMessage);
+            String lati = "";
+            try {
+                lati = encrypt(String.valueOf(MyService.latitude),EncDecpassword);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            distress.child("latitude").setValue(lati);
+            String longi = "";
+            try {
+                longi = encrypt(String.valueOf(MyService.longitude),EncDecpassword);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            distress.child("longitude").setValue(longi);
+
+            String namey= "";
+            try {
+                namey = encrypt(SignIn.account.getDisplayName(),EncDecpassword);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            distress.child("Name").setValue(namey);
             Date date = new Date();
             distress.child("expires").setValue(date.getTime()+7200000);
             Toast.makeText(this,"Help Request has been Sent",Toast.LENGTH_LONG).show();
@@ -402,12 +439,40 @@ public class Home extends AppCompatActivity {
                 if(result.get(0).toLowerCase().contains("help"))
                 {
 
+                    String senderMessage = "";
                     DatabaseReference  distress = database.getReference("messages").child(Register.group).child(getId());
+                    String helpMessage = "I need help";
+                    try {
+                        senderMessage = encrypt(helpMessage,EncDecpassword);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
 
-                    distress.child("message").setValue("I need help");
-                    distress.child("latitude").setValue(MyService.latitude);
-                    distress.child("longitude").setValue(MyService.longitude);
-                    distress.child("Name").setValue(SignIn.account.getDisplayName());
+                    distress.child("message").setValue(senderMessage);
+                    String lati = "";
+                    try {
+                        lati = encrypt(String.valueOf(MyService.latitude),EncDecpassword);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    distress.child("latitude").setValue(lati);
+                    String longi = "";
+                    try {
+                        longi = encrypt(String.valueOf(MyService.longitude),EncDecpassword);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    distress.child("longitude").setValue(longi);
+
+                    String namey= "";
+                    try {
+                        namey = encrypt(SignIn.account.getDisplayName(),EncDecpassword);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    distress.child("Name").setValue(namey);
                     Date date = new Date();
                     distress.child("expires").setValue(date.getTime()+7200000);
                     Toast.makeText(this,"Help Request has been Sent",Toast.LENGTH_LONG).show();
@@ -618,4 +683,33 @@ public class Home extends AppCompatActivity {
         return d;
     }
 
+
+    private String encrypt(String data, String password) throws Exception
+    {
+        SecretKeySpec key = generateKey(password);
+        Cipher c = Cipher.getInstance(AES);
+        c.init(Cipher.ENCRYPT_MODE,key);
+        byte[] encval = c.doFinal(data.getBytes());
+        String encryptedValue = Base64.encodeToString(encval,Base64.DEFAULT);
+        return encryptedValue;
+    }
+
+    private SecretKeySpec generateKey(String password) throws Exception{
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] bytes = password.getBytes("UTF-8");
+        digest.update(bytes,0,bytes.length);
+        byte[] key = digest.digest();
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key,"AES");
+        return secretKeySpec;
+    }
+    private String decrypt(String outputString, String password) throws Exception
+    {
+        SecretKeySpec key = generateKey(password);
+        Cipher c = Cipher.getInstance(AES);
+        c.init(Cipher.DECRYPT_MODE,key);
+        byte[] decodedValue = Base64.decode(outputString,Base64.DEFAULT);
+        byte[] decValue = c.doFinal(decodedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+    }
 }

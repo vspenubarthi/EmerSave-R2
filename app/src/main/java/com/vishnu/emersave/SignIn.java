@@ -2,6 +2,9 @@ package com.vishnu.emersave;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.SystemClock;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -23,6 +26,11 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class SignIn extends AppCompatActivity {
     private SignInButton mGoogleBtn;
@@ -30,7 +38,15 @@ public class SignIn extends AppCompatActivity {
     private GoogleApiClient mGoogleApiClient;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthStateListener;
-ImageView icon;
+   private FirebaseDatabase database = FirebaseDatabase.getInstance();
+   private String m_androidId;
+
+    private DatabaseReference individualGroups = database.getReference("groupIds");
+    String group = "";
+    String EncDecpassword = "TestPassword";
+    String AES = "AES";
+
+    ImageView icon;
 TextView textView;
 String accountName = "Default Name";
 String urI = " ";
@@ -42,19 +58,21 @@ Uri uri;
         mAuth = FirebaseAuth.getInstance();
         mGoogleBtn = (SignInButton) findViewById(R.id.googleBtn);
 
+        //Toast.makeText(SignIn.this,android.os.Build.MODEL,Toast.LENGTH_SHORT).show();
+       // boolean isEmulator = isInEmulator();
+      //  loadGroupId();
 
+       // SystemClock.sleep(5000);
         mAuthStateListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 if(firebaseAuth.getCurrentUser()!=null)
                 {
-                    if(!Register.group.equals("")) {
-
-
+                    if(Register.group!=null) {
 
                         startActivity(new Intent(SignIn.this, Home.class));
-           }
-                 else
+                    }
+                    else
                     {
                         Toast.makeText(SignIn.this,"It seems you do not have a group, please register below",Toast.LENGTH_LONG).show();
                     }
@@ -82,7 +100,14 @@ Uri uri;
                 signIn();
             }
         });
+
+
     }
+    public boolean isInEmulator()
+    {
+        return android.os.Build.MODEL.contains("x86");
+    }
+
     @Override
     protected void onStart()
     {
@@ -121,7 +146,7 @@ static GoogleSignInAccount account;
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if(!task.isSuccessful())
                         {
-                            Toast.makeText(SignIn.this,"Authentication Failed",Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignIn.this,"Authentication failed",Toast.LENGTH_LONG).show();
                         }
 
                     }
@@ -131,5 +156,33 @@ static GoogleSignInAccount account;
 
     public void onClicky(View view) {
         startActivity(new Intent(SignIn.this, Register.class));
+    }
+
+    public String getId()
+    {
+        try {
+
+            m_androidId = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
+
+        }
+        catch (Exception e)
+        {
+            System.out.println(e.getMessage());
+        }
+        return m_androidId;
+    }
+    public void loadGroupId()
+    {
+        individualGroups.child(getId()).child("groupCode").addListenerForSingleValueEvent(new ValueEventListener( ) {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Register.group = dataSnapshot.getValue(String.class);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

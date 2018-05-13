@@ -23,6 +23,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
+import android.util.Base64;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,9 +33,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.Date;
+
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 public class MyService extends Service {
     private static final int REQUEST_LOCATION = 1;
@@ -61,16 +67,14 @@ public class MyService extends Service {
     long[] vibr = {200, 200, 200};
     String message;
     String m_androidId;
-    String lon;
-    String lat;
-    String latVishnu;
-    String lonVishnu;
-    String latFriend;
-    String lonFriend;
+    String EncDecpassword = "TestPassword";
+    String AES = "AES";
     private LocationListener locationListener;
     private LocationManager locationManager;
     int nums = 1;
     Home home;
+    private DatabaseReference individualGroups = database.getReference("groupIds");
+
 
     public MyService() {
 
@@ -144,21 +148,25 @@ public class MyService extends Service {
 
                     // testyes = String.valueOf(HaversineInKM(latitude, longitude, dataSnapshot.child("latitude").getValue(double.class), dataSnapshot.child("longitude").getValue(double.class)));
                     //Toast.makeText(MainActivity.this,testyes,Toast.LENGTH_SHORT).show();                                                                                  //1 mile in km = 1.609344
-                    if (HaversineInKM(latitude, longitude, dataSnapshot.child("latitude").getValue(double.class), dataSnapshot.child("longitude").getValue(double.class)) < 1.609344) {
-                        //  Toast.makeText(MainActivity.this,"Within 10KM",Toast.LENGTH_SHORT).show();
-                        if(date.getTime()<dataSnapshot.child("expires").getValue(double.class)) {
+                    try {
+                        if (HaversineInKM(latitude, longitude, Double.valueOf(decrypt(dataSnapshot.child("latitude").getValue(String.class),EncDecpassword)), Double.valueOf(decrypt(dataSnapshot.child("longitude").getValue(String.class),EncDecpassword))) < 1.609344) {
+                            //  Toast.makeText(MainActivity.this,"Within 10KM",Toast.LENGTH_SHORT).show();
+                            if(date.getTime()<dataSnapshot.child("expires").getValue(double.class)) {
 
-                            String Name = dataSnapshot.child("Name").getValue(String.class);
-                            String latty = String.valueOf(dataSnapshot.child("latitude").getValue(double.class));
-                            String longy =  String.valueOf(dataSnapshot.child("longitude").getValue(double.class));
-                            id = dataSnapshot.getKey();
-                            if(!ids.contains(id)) {
-                                notif(Name, latty, longy);
-                                ids.add(id);
-                                Toast.makeText(getApplicationContext(),"A Friend Needs Help. Check Notifications",Toast.LENGTH_LONG).show();
+                                String Name = decrypt(dataSnapshot.child("Name").getValue(String.class),EncDecpassword);
+                                String latty = decrypt(dataSnapshot.child("latitude").getValue(String.class),EncDecpassword);
+                                String longy =  decrypt(dataSnapshot.child("longitude").getValue(String.class),EncDecpassword);
+                                id = dataSnapshot.getKey();
+                                if(!ids.contains(id)) {
+                                    notif(Name, latty, longy);
+                                    ids.add(id);
+                                    Toast.makeText(getApplicationContext(),"A Friend Needs Help. Check Notifications",Toast.LENGTH_LONG).show();
+                                }
+
                             }
-
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
 
 
@@ -166,7 +174,12 @@ public class MyService extends Service {
             }
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
-                String namer = dataSnapshot.child("Name").getValue(String.class);
+                String namer = null;
+                try {
+                    namer = decrypt(dataSnapshot.child("Name").getValue(String.class),EncDecpassword);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 if(!getId().equals(dataSnapshot.getKey())) {
                     safey(namer);
                 }
@@ -346,8 +359,6 @@ public class MyService extends Service {
         }
     }
 
-
-
     protected void buildAlertMessageNoGps() {
 
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -367,4 +378,28 @@ public class MyService extends Service {
         alert.show();
     }
 
+    public void setGroup(String groupName)
+    {
+        individualGroups.child(getId()).child("groupCode").setValue(groupName);
+    }
+
+    private String decrypt(String outputString, String password) throws Exception
+    {
+        SecretKeySpec key = generateKey(password);
+        Cipher c = Cipher.getInstance(AES);
+        c.init(Cipher.DECRYPT_MODE,key);
+        byte[] decodedValue = Base64.decode(outputString,Base64.DEFAULT);
+        byte[] decValue = c.doFinal(decodedValue);
+        String decryptedValue = new String(decValue);
+        return decryptedValue;
+
+    }
+    private SecretKeySpec generateKey(String password) throws Exception{
+        final MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] bytes = password.getBytes("UTF-8");
+        digest.update(bytes,0,bytes.length);
+        byte[] key = digest.digest();
+        SecretKeySpec secretKeySpec = new SecretKeySpec(key,"AES");
+        return secretKeySpec;
+    }
 }
