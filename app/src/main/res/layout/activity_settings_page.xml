@@ -11,5 +11,113 @@
         android:layout_height="match_parent"
         android:fillViewport="true">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/settings_title"
+                android:layout_width="match_parent"
+                android:layout_height="75dp"
+                android:fontFamily="@font/times"
+                android:text="Settings"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="50sp" />
+
+            <TextView
+                android:id="@+id/radius_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/times"
+                android:text="Radius (km)"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="30sp" />
+
+            <EditText
+                android:id="@+id/radius_size"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:fontFamily="@font/times"
+                android:inputType="numberDecimal"
+                android:textColor="@color/black"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/help_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/times"
+                android:text="Keyword for calling help"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="30sp"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/help_key_word"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text|textPersonName"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/safe_keyword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/times"
+                android:text="Keyword for safety"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="30sp"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/safe_key_word"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text|textPersonName"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/help_message_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/times"
+                android:text="Set Message"
+                android:textAllCaps="false"
+                android:textColor="@color/black"
+                android:textSize="30sp"
+                android:visibility="gone" />
+
+            <EditText
+                android:id="@+id/set_help_message"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text|textPersonName"
+                android:visibility="gone" />
+
+            <Button
+                android:id="@+id/settings_update"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:fontFamily="@font/times"
+                android:text="Update Settings"
+                android:textAlignment="center"
+                android:textColor="@color/black" />
+
+            <Button
+                android:id="@+id/logOut"
+                android:layout_width="match_parent"
+                android:layout_height="50sp"
+                android:fontFamily="@font/times"
+                android:text="Log Out" />
+        </LinearLayout>
     </android.support.v4.widget.NestedScrollView>
 </android.support.constraint.ConstraintLayout>

@@ -12,8 +12,8 @@
     <color name="colorborder">#F4E4C1</color>
     <color name="colorset">#802BB1</color>
     <color name="turq">#41b3a3</color>
-  <color name="REDISH">#E27D60</color>
+  <color name="REDISH">#e27d60</color>
   <color name="BLUEISH">#8855ddcc</color>
-  <color name="ORANGISH">#E8A87C</color>
+  <color name="ORANGISH">#e8a87c</color>
   <color name="PURPLEISH">#c38d9e</color>
 </resources>

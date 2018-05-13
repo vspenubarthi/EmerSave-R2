@@ -73,6 +73,7 @@ public class MyService extends Service {
     private LocationManager locationManager;
     int nums = 1;
     Home home;
+    static double radius = 1.609344;
     private DatabaseReference individualGroups = database.getReference("groupIds");
 
 
@@ -149,7 +150,7 @@ public class MyService extends Service {
                     // testyes = String.valueOf(HaversineInKM(latitude, longitude, dataSnapshot.child("latitude").getValue(double.class), dataSnapshot.child("longitude").getValue(double.class)));
                     //Toast.makeText(MainActivity.this,testyes,Toast.LENGTH_SHORT).show();                                                                                  //1 mile in km = 1.609344
                     try {
-                        if (HaversineInKM(latitude, longitude, Double.valueOf(decrypt(dataSnapshot.child("latitude").getValue(String.class),EncDecpassword)), Double.valueOf(decrypt(dataSnapshot.child("longitude").getValue(String.class),EncDecpassword))) < 1.609344) {
+                        if (HaversineInKM(latitude, longitude, Double.valueOf(decrypt(dataSnapshot.child("latitude").getValue(String.class),EncDecpassword)), Double.valueOf(decrypt(dataSnapshot.child("longitude").getValue(String.class),EncDecpassword))) < radius) {
                             //  Toast.makeText(MainActivity.this,"Within 10KM",Toast.LENGTH_SHORT).show();
                             if(date.getTime()<dataSnapshot.child("expires").getValue(double.class)) {
 

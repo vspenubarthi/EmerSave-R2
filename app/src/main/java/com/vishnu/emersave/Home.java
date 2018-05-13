@@ -67,8 +67,6 @@ import com.google.android.gms.actions.SearchIntents;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
 
-import static com.vishnu.emersave.PostingPage.namef;
-
 public class Home extends AppCompatActivity {
     TextToSpeech t1;
     private static final int REQUEST_LOCATION = 1;
@@ -110,6 +108,9 @@ public class Home extends AppCompatActivity {
     Location Location;
     String EncDecpassword = "TestPassword";
     String AES = "AES";
+    static String help = "help";
+    static String safe = "safe";
+    static String helpMessage = "I need help!";
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -245,7 +246,7 @@ public class Home extends AppCompatActivity {
 
             String senderMessage = "";
             DatabaseReference  distress = database.getReference("messages").child(Register.group).child(getId());
-            String helpMessage = "I need help";
+
             try {
                 senderMessage = encrypt(helpMessage,EncDecpassword);
             } catch (Exception e) {
@@ -307,7 +308,10 @@ public class Home extends AppCompatActivity {
         }
         if(v.getId()==R.id.settings)
         {
-            mAuth.signOut();
+            Intent i = new Intent(
+                    Home.this,
+                    SettingsPage.class);
+            startActivity(i);
         }
     }
 
@@ -441,7 +445,7 @@ public class Home extends AppCompatActivity {
 
                     String senderMessage = "";
                     DatabaseReference  distress = database.getReference("messages").child(Register.group).child(getId());
-                    String helpMessage = "I need help";
+
                     try {
                         senderMessage = encrypt(helpMessage,EncDecpassword);
                     } catch (Exception e) {
@@ -711,5 +715,6 @@ public class Home extends AppCompatActivity {
         byte[] decValue = c.doFinal(decodedValue);
         String decryptedValue = new String(decValue);
         return decryptedValue;
+
     }
 }
